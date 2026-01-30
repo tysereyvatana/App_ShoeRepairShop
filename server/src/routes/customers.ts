@@ -52,6 +52,8 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     let totalSpent = 0;
     let totalPaid = 0;
     let outstanding = 0;
+
+    // ✅ MUST be Date | null (this fixes the TS "never" error)
     let lastVisit: Date | null = null;
 
     const orderRows = orders.map((o) => {
@@ -62,6 +64,7 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
       if (o.status !== "CANCELLED") totalSpent += total;
       totalPaid += paid;
       if (balance > 0) outstanding += balance;
+
       if (!lastVisit || o.receivedAt > lastVisit) lastVisit = o.receivedAt;
 
       return {
@@ -86,6 +89,7 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
         totalSpent: totalSpent.toString(),
         totalPaid: totalPaid.toString(),
         outstanding: outstanding.toString(),
+        // ✅ Convert to ISO safely here
         lastVisit: lastVisit ? lastVisit.toISOString() : null,
         repeatCustomer,
       },
@@ -139,7 +143,6 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     async (request) => {
       const params = z.object({ id: z.string() }).parse(request.params);
       const body = customerSchema.partial().parse(request.body);
-
       return app.prisma.customer.update({ where: { id: params.id }, data: body });
     }
   );
