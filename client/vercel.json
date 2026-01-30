@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "https://app-shoe-repair-shop-server.vercel.app/api/$1"
     }
   ]
 }

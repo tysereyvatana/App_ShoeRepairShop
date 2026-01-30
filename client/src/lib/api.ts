@@ -7,11 +7,18 @@ function normalizeApiUrl(raw: string) {
 }
 
 function resolveBaseUrl() {
-  const envUrl = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+  // ✅ IMPORTANT: must be direct access so Vite injects it at build time
+  const envUrl = import.meta.env.VITE_API_URL as string | undefined;
   const fromEnv = normalizeApiUrl(envUrl ?? "");
   if (fromEnv) return fromEnv;
 
-  // Default: same machine hostname, backend on 4000
+  // If running on HTTPS (like Vercel) but env is missing, avoid mixed-content by using relative API.
+  // (Optional: works great if you later add a Vercel rewrite for /api.)
+  if (typeof window !== "undefined" && window.location.protocol === "https:") {
+    return "/api";
+  }
+
+  // Local dev fallback: backend on 4000
   return `http://${window.location.hostname}:4000/api`;
 }
 
