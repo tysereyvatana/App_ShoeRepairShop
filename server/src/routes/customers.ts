@@ -53,8 +53,11 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     let totalPaid = 0;
     let outstanding = 0;
 
-    // ✅ MUST be Date | null (this fixes the TS "never" error)
-    let lastVisit: Date | null = null;
+    // ✅ Latest visit is the first order because receivedAt is sorted desc
+    const lastVisitIso =
+      orders[0]?.receivedAt != null
+        ? new Date(orders[0].receivedAt as any).toISOString()
+        : null;
 
     const orderRows = orders.map((o) => {
       const total = Number(o.total);
@@ -64,8 +67,6 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
       if (o.status !== "CANCELLED") totalSpent += total;
       totalPaid += paid;
       if (balance > 0) outstanding += balance;
-
-      if (!lastVisit || o.receivedAt > lastVisit) lastVisit = o.receivedAt;
 
       return {
         id: o.id,
@@ -89,8 +90,7 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
         totalSpent: totalSpent.toString(),
         totalPaid: totalPaid.toString(),
         outstanding: outstanding.toString(),
-        // ✅ Convert to ISO safely here
-        lastVisit: lastVisit ? lastVisit.toISOString() : null,
+        lastVisit: lastVisitIso,
         repeatCustomer,
       },
       recentOrders: orderRows,
