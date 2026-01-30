@@ -1,0 +1,105 @@
+/* VET label (8cm x 10cm)
+   Dedicated layout (does not affect other label/thermal prints)
+*/
+
+:root {
+  --vet-width: 8cm;
+  --vet-height: 11cm;
+}
+
+.vet-paper {
+  width: var(--vet-width);
+  height: var(--vet-height);
+  max-width: var(--vet-width);
+  max-height: var(--vet-height);
+  box-sizing: border-box;
+  background: #fff;
+  padding: 8mm;
+  overflow: hidden;
+
+  font-family: "Noto Sans Khmer", "Khmer OS System", "Khmer OS", "Segoe UI", Arial, sans-serif;
+  line-height: 1.15;
+}
+
+.vet-title {
+  text-align: center;
+  font-weight: 900;
+  font-size: 30px;
+  margin: 0;
+}
+
+.vet-subtitle {
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
+  margin: 2mm 0 8mm 0;
+}
+
+.vet-phone-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin: 2mm 0;
+}
+
+.vet-klabel {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.vet-phone {
+  font-weight: 800;
+  font-size: 25px;
+  letter-spacing: 1px;
+}
+
+.vet-location {
+  text-align: center;
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 1.5;
+  margin: 4mm 0 5mm 0;
+}
+
+.vet-code-label {
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  margin: 0 0 4mm 0;
+}
+
+.vet-box {
+  border: 2px solid #000;
+  padding: 3mm 0mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vet-box-text {
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 2px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  @page {
+    size: 8cm 10cm;
+    margin: 0;
+  }
+
+  .vet-paper {
+    padding: 8mm !important;
+  }
+}

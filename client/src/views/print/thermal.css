@@ -1,0 +1,70 @@
+/* Shared 80mm thermal print styles
+   - consistent on Chrome + Firefox
+   - border shown on screen, hidden on print
+*/
+
+:root {
+  --paper-width: 80mm;
+}
+
+.thermal-shell {
+  padding: 10px;
+}
+
+.thermal-paper {
+  width: var(--paper-width);
+  max-width: var(--paper-width);
+  border: 1px solid #000;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 10px;
+  line-height: 0.8;
+}
+
+.thermal-center {
+  text-align: center;
+}
+
+.thermal-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.thermal-muted {
+  opacity: 0.8;
+}
+
+.thermal-cut {
+  margin-top: 10px;
+  border-top: 1px dashed #000;
+  padding-top: 6px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Avoid extra margins from wrappers */
+  .thermal-shell {
+    padding: 0 !important;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  .thermal-paper {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 10px !important;
+  }
+}

@@ -1,0 +1,160 @@
+/* A5 receipt / invoice layout for normal printers.
+   - Paper size: A5 portrait
+   - Clean invoice-style layout
+   - No QR
+*/
+
+:root {
+  --a5-width: 148mm;
+  --a5-height: 210mm;
+}
+
+.a5-paper {
+  width: var(--a5-width);
+  min-height: var(--a5-height);
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 12mm;
+  border-radius: 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Khmer", "Noto Sans", sans-serif;
+  color: #111;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.a5-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.a5-logo {
+  font-weight: 900;
+  letter-spacing: 4px;
+  font-size: 18px;
+}
+
+.a5-shop {
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.a5-title {
+  font-weight: 900;
+  font-size: 18px;
+  text-align: right;
+}
+
+.a5-muted {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.a5-strong {
+  font-weight: 900;
+}
+
+.a5-divider {
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+.a5-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.a5-section-title {
+  font-weight: 800;
+  margin-bottom: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.a5-note {
+  white-space: pre-wrap;
+}
+
+.a5-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.a5-table thead th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.75;
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.a5-table tbody td {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.a5-right {
+  text-align: right;
+}
+
+.a5-totals {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.a5-totals-box {
+  width: 70mm;
+}
+
+.a5-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 0;
+}
+
+.a5-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.a5-sign {
+  text-align: right;
+  width: 70mm;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  @page {
+    size: A5 portrait;
+    margin: 8mm;
+  }
+
+  .a5-paper {
+    width: auto;
+    min-height: auto;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+}

@@ -1,0 +1,23 @@
+/* Base print shell styles.
+   Each print page imports its own paper-specific stylesheet (thermal, label, A5, etc.).
+*/
+
+.print-shell {
+  padding: 10px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .print-shell {
+    padding: 0 !important;
+  }
+}

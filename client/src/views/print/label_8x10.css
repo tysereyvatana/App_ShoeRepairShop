@@ -1,0 +1,53 @@
+/* 8cm x 10cm label print styles (white background, no QR)
+   - For tag + shipping label
+*/
+
+:root {
+  --label-width: 8cm;
+  --label-height: 10cm;
+}
+
+.label-paper {
+  width: var(--label-width);
+  height: var(--label-height);
+  max-width: var(--label-width);
+  max-height: var(--label-height);
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  @page {
+    size: 8cm 12cm;
+    margin: 0;
+  }
+
+  .label-paper {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 4mm !important;
+  }
+}

@@ -1,0 +1,194 @@
+import React from "react";
+import { Box, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Alert } from "@mui/material";
+import { DataGrid, GridColDef, GridPaginationModel } from "@mui/x-data-grid";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import type { Supplier, Paged } from "../lib/types";
+import { PageHeader } from "./components/PageHeader";
+import { useAuth } from "../lib/auth";
+import { useDebouncedValue } from "../lib/useDebouncedValue";
+
+type Form = {
+  code?: string | null;
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+};
+
+const empty: Form = { code: null, name: "", phone: null, email: null, address: null };
+
+export function SuppliersPage() {
+  const qc = useQueryClient();
+  const { isAdmin } = useAuth();
+
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
+  const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({ page: 0, pageSize: 50 });
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<Supplier | null>(null);
+  const [form, setForm] = React.useState<Form>(empty);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const page = paginationModel.page + 1;
+  const pageSize = paginationModel.pageSize;
+
+  const suppliersQ = useQuery({
+    queryKey: ["suppliers", debouncedSearch, page, pageSize],
+    queryFn: async () => {
+      const res = await api.get<Paged<Supplier>>("/suppliers", { params: { q: debouncedSearch, page, pageSize } });
+      return res.data;
+    },
+    placeholderData: (prev) => prev,
+    staleTime: 5_000,
+  });
+
+  const createMut = useMutation({
+    mutationFn: async (payload: Form) => (await api.post<Supplier>("/suppliers", payload)).data,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["suppliers"] });
+      setDialogOpen(false);
+    },
+    onError: (e: any) => setError(e?.response?.data?.message ?? "Create failed"),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Form> }) =>
+      (await api.put<Supplier>(`/suppliers/${id}`, payload)).data,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["suppliers"] });
+      setDialogOpen(false);
+    },
+    onError: (e: any) => setError(e?.response?.data?.message ?? "Update failed"),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => api.delete(`/suppliers/${id}`),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["suppliers"] });
+    },
+    onError: (e: any) => alert(e?.response?.data?.message ?? "Delete failed"),
+  });
+
+  const columns: GridColDef<Supplier>[] = [
+    { field: "name", headerName: "Name", flex: 1, minWidth: 220 },
+    { field: "code", headerName: "Code", width: 140, valueGetter: (v, r) => r.code ?? "" },
+    { field: "phone", headerName: "Phone", width: 160, valueGetter: (v, r) => r.phone ?? "" },
+    { field: "email", headerName: "Email", width: 220, valueGetter: (v, r) => r.email ?? "" },
+    { field: "address", headerName: "Address", flex: 1, minWidth: 220, valueGetter: (v, r) => r.address ?? "" },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 220,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => {
+              setError(null);
+              setEditing(params.row);
+              setForm({
+                code: params.row.code,
+                name: params.row.name,
+                phone: params.row.phone,
+                email: params.row.email,
+                address: params.row.address,
+              });
+              setDialogOpen(true);
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            disabled={!isAdmin}
+            onClick={() => {
+              if (confirm("Delete this supplier?")) deleteMut.mutate(params.row.id);
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
+  ];
+
+  const openCreate = () => {
+    setError(null);
+    setEditing(null);
+    setForm(empty);
+    setDialogOpen(true);
+  };
+
+  const save = async () => {
+    setError(null);
+    if (!form.name.trim()) {
+      setError("Name is required");
+      return;
+    }
+    if (editing) updateMut.mutate({ id: editing.id, payload: form });
+    else createMut.mutate(form);
+  };
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <PageHeader
+        title="Suppliers"
+        subtitle="Manage suppliers and quickly search by name, code, or phone."
+        search={search}
+        onSearchChange={(v) => {
+          setSearch(v);
+          setPaginationModel((m) => ({ ...m, page: 0 }));
+        }}
+        onAdd={openCreate}
+        addLabel="New Supplier"
+      />
+
+      <Card>
+        <CardContent>
+          <Box sx={{ height: 520 }}>
+            <DataGrid
+              rows={suppliersQ.data?.data ?? []}
+              columns={columns}
+              loading={suppliersQ.isLoading || suppliersQ.isFetching}
+              getRowId={(r) => r.id}
+              disableRowSelectionOnClick
+              pageSizeOptions={[25, 50, 100]}
+              paginationMode="server"
+              rowCount={suppliersQ.data?.total ?? 0}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+            />
+          </Box>
+        </CardContent>
+      </Card>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>{editing ? "Edit Supplier" : "New Supplier"}</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
+          {error ? <Alert severity="error">{error}</Alert> : null}
+
+          <TextField label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <TextField label="Code" value={form.code ?? ""} onChange={(e) => setForm({ ...form, code: e.target.value || null })} />
+          <TextField label="Phone" value={form.phone ?? ""} onChange={(e) => setForm({ ...form, phone: e.target.value || null })} />
+          <TextField label="Email" value={form.email ?? ""} onChange={(e) => setForm({ ...form, email: e.target.value || null })} />
+          <TextField label="Address" value={form.address ?? ""} onChange={(e) => setForm({ ...form, address: e.target.value || null })} />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button variant="outlined" onClick={() => setDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={createMut.isPending || updateMut.isPending}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
