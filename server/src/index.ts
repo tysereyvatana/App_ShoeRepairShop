@@ -5,7 +5,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildApp } from "./app.js";
 
-const app = await buildApp();
+// const app = await buildApp();
+// const port = Number(process.env.PORT ?? 3000);
 
 // Serve built client (optional)
 // - In development you normally run: `npm run dev` (Vite on :5173)
@@ -55,5 +56,5 @@ if (hasClientBuild) {
   });
 }
 
-const port = Number(process.env.PORT ?? 4000);
+const port = Number(process.env.PORT ?? 3000);
 await app.listen({ port, host: "0.0.0.0" });
