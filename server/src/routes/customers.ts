@@ -52,7 +52,7 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     let totalSpent = 0;
     let totalPaid = 0;
     let outstanding = 0;
-    let lastVisit: Date | null = null;
+    let lastVisit: (lastVisit as Date | null)?.toISOString() ?? null,
 
     const orderRows = orders.map((o) => {
       const total = Number(o.total);
