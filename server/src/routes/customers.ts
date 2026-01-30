@@ -52,7 +52,9 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     let totalSpent = 0;
     let totalPaid = 0;
     let outstanding = 0;
-    let lastVisit: (lastVisit as Date | null)?.toISOString() ?? null,
+
+    // ✅ Fix: lastVisit must be Date | null
+    let lastVisit: Date | null = null;
 
     const orderRows = orders.map((o) => {
       const total = Number(o.total);
@@ -62,6 +64,7 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
       if (o.status !== "CANCELLED") totalSpent += total;
       totalPaid += paid;
       if (balance > 0) outstanding += balance;
+
       if (!lastVisit || o.receivedAt > lastVisit) lastVisit = o.receivedAt;
 
       return {
@@ -86,7 +89,8 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
         totalSpent: totalSpent.toString(),
         totalPaid: totalPaid.toString(),
         outstanding: outstanding.toString(),
-        lastVisit: lastVisit?.toISOString() ?? null,
+        // ✅ Convert to ISO only here
+        lastVisit: lastVisit ? lastVisit.toISOString() : null,
         repeatCustomer,
       },
       recentOrders: orderRows,
@@ -123,22 +127,33 @@ export const customerRoutes: FastifyPluginAsync = async (app) => {
     return { data, page, pageSize, total };
   });
 
-  app.post("/customers", { preHandler: [app.authenticate, app.requireRole(["ADMIN", "STAFF"]) ] }, async (request, reply) => {
-    const body = customerSchema.parse(request.body);
-    const customer = await app.prisma.customer.create({ data: body });
-    return reply.code(201).send(customer);
-  });
+  app.post(
+    "/customers",
+    { preHandler: [app.authenticate, app.requireRole(["ADMIN", "STAFF"])] },
+    async (request, reply) => {
+      const body = customerSchema.parse(request.body);
+      const customer = await app.prisma.customer.create({ data: body });
+      return reply.code(201).send(customer);
+    }
+  );
 
-  app.put("/customers/:id", { preHandler: [app.authenticate, app.requireRole(["ADMIN", "STAFF"]) ] }, async (request) => {
-    const params = z.object({ id: z.string() }).parse(request.params);
-    const body = customerSchema.partial().parse(request.body);
+  app.put(
+    "/customers/:id",
+    { preHandler: [app.authenticate, app.requireRole(["ADMIN", "STAFF"])] },
+    async (request) => {
+      const params = z.object({ id: z.string() }).parse(request.params);
+      const body = customerSchema.partial().parse(request.body);
+      return app.prisma.customer.update({ where: { id: params.id }, data: body });
+    }
+  );
 
-    return app.prisma.customer.update({ where: { id: params.id }, data: body });
-  });
-
-  app.delete("/customers/:id", { preHandler: [app.authenticate, app.requireRole(["ADMIN"]) ] }, async (request, reply) => {
-    const params = z.object({ id: z.string() }).parse(request.params);
-    await app.prisma.customer.update({ where: { id: params.id }, data: { deletedAt: new Date() } });
-    return reply.code(204).send();
-  });
+  app.delete(
+    "/customers/:id",
+    { preHandler: [app.authenticate, app.requireRole(["ADMIN"])] },
+    async (request, reply) => {
+      const params = z.object({ id: z.string() }).parse(request.params);
+      await app.prisma.customer.update({ where: { id: params.id }, data: { deletedAt: new Date() } });
+      return reply.code(204).send();
+    }
+  );
 };
