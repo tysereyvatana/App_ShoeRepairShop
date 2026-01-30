@@ -1526,6 +1526,15 @@ const auditQ = useQuery({
                   onClick={() => {
                     setPrintAnchorEl(null);
                     if (!order) return;
+                    window.open(`/print/receipt-a5/${order.id}`, "_blank");
+                  }}
+                >
+                  Print Receipt (A5)
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setPrintAnchorEl(null);
+                    if (!order) return;
                     window.open(`/print/shipping/${order.id}`, "_blank");
                   }}
                 >
@@ -1566,10 +1575,19 @@ const auditQ = useQuery({
                 <MenuItem
                   onClick={() => {
                     setPrintAnchorEl(null);
+                    window.open(`/print/tips`, "_blank");
+                  }}
+                >
+                  Printer Tips
+                </MenuItem>
+
+                <MenuItem
+                  onClick={() => {
+                    setPrintAnchorEl(null);
                     window.open(`/print/test`, "_blank");
                   }}
                 >
-                  Printer Tips / Test
+                  Printer Test
                 </MenuItem>
               </Menu>
             </Box>

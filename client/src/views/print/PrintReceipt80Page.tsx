@@ -243,8 +243,6 @@ export function PrintReceipt80Page() {
 
         <Divider sx={{ my: 1 }} />
 
-                <Divider sx={{ my: 1 }} />
-
         <Typography fontSize={11} color="text.secondary" sx={{ textAlign: "center" }}>
           Thank you!
         </Typography>

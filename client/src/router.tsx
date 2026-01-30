@@ -22,10 +22,12 @@ import { PrintShell } from "./views/print/PrintShell";
 import { PrintTagPage } from "./views/print/PrintTagPage";
 import { PrintInvoicePage } from "./views/print/PrintInvoicePage";
 import { PrintReceipt80Page } from "./views/print/PrintReceipt80Page";
+import { PrintReceiptA5Page } from "./views/print/PrintReceiptA5Page";
 import { PrintShipping80Page } from "./views/print/PrintShipping80Page";
 import { PrintVetPage } from "./views/print/PrintVetPage";
 import { PrintBothPage } from "./views/print/PrintBothPage";
 import { PrinterTestPage } from "./views/print/PrinterTestPage";
+import { PrinterTipsPage } from "./views/print/PrinterTipsPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -94,10 +96,12 @@ export const router = createBrowserRouter([
       { path: "tag/:id", element: <PrintTagPage /> },
       { path: "invoice/:id", element: <PrintInvoicePage /> },
       { path: "receipt/:id", element: <PrintReceipt80Page /> },
+      { path: "receipt-a5/:id", element: <PrintReceiptA5Page /> },
       { path: "shipping/:id", element: <PrintShipping80Page /> },
       { path: "vet/:id", element: <PrintVetPage /> },
       { path: "both/:id", element: <PrintBothPage /> },
       { path: "test", element: <PrinterTestPage /> },
+      { path: "tips", element: <PrinterTipsPage /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },
